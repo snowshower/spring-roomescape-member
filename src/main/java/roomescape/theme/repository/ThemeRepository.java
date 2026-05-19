@@ -2,6 +2,7 @@ package roomescape.theme.repository;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -20,6 +21,14 @@ public class ThemeRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
+    private final RowMapper<Theme> themeRowMapper = (rs, rowNum) -> new Theme(
+            rs.getLong("id"),
+            rs.getString("name"),
+            rs.getString("description"),
+            rs.getString("image_url"),
+            rs.getObject("required_time", LocalTime.class)
+    );
+
     public ThemeRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -27,18 +36,7 @@ public class ThemeRepository {
     public List<Theme> findAll() {
         String sql = "SELECT * FROM theme";
 
-        return jdbcTemplate.query(
-                sql,
-                (resultSet, rowNum) -> {
-                    return new Theme(
-                            resultSet.getLong("id"),
-                            resultSet.getString("name"),
-                            resultSet.getString("description"),
-                            resultSet.getString("image_url"),
-                            resultSet.getObject("required_time", LocalTime.class)
-                    );
-                }
-        );
+        return jdbcTemplate.query(sql, themeRowMapper);
     }
 
     public Theme create(Theme theme) {
@@ -68,13 +66,7 @@ public class ThemeRepository {
     public Optional<Theme> findById(Long id) {
         String sql = "SELECT id, name, description, image_url, required_time FROM theme WHERE id = ?";
         try {
-            Theme theme = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new Theme(
-                    rs.getLong("id"),
-                    rs.getString("name"),
-                    rs.getString("description"),
-                    rs.getString("image_url"),
-                    rs.getObject("required_time", LocalTime.class)
-            ), id);
+            Theme theme = jdbcTemplate.queryForObject(sql, themeRowMapper, id);
             return Optional.of(theme);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();

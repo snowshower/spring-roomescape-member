@@ -20,6 +20,7 @@ public class AdminScheduleController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         scheduleService.delete(id);
+
         return ResponseEntity.noContent().build();
     }
 }

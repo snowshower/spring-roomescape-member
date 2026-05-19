@@ -2,6 +2,7 @@ package roomescape.reservation.repository;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -21,6 +22,28 @@ import java.util.Optional;
 public class ReservationRepository {
 
     private final JdbcTemplate jdbcTemplate;
+
+    private final RowMapper<Reservation> reservationRowMapper = (rs, rowNum) -> {
+        User user = new User(
+                rs.getLong("user_id"),
+                rs.getString("user_name"),
+                Role.valueOf(rs.getString("user_role"))
+        );
+
+        Theme theme = new Theme(
+                rs.getLong("theme_id"),
+                rs.getString("theme_name"),
+                rs.getString("description"),
+                rs.getString("image_url"),
+                rs.getObject("required_time", LocalTime.class));
+
+        Schedule schedule = new Schedule(
+                rs.getLong("schedule_id"),
+                rs.getObject("start_at", LocalDateTime.class),
+                theme);
+
+        return new Reservation(rs.getLong("reservation_id"), user, schedule);
+    };
 
     public ReservationRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -65,23 +88,7 @@ public class ReservationRepository {
                 """;
 
 
-        return jdbcTemplate.query(sql, (resultSet, rowNum) -> {
-            User user = new User(
-                    resultSet.getLong("user_id"),
-                    resultSet.getString("user_name"),
-                    Role.valueOf(resultSet.getString("user_role"))
-            );
-
-            Theme theme = new Theme(resultSet.getLong("theme_id"), resultSet.getString("theme_name"),
-                    resultSet.getString("description"), resultSet.getString("image_url"),
-                    resultSet.getObject("required_time", LocalTime.class));
-
-            Schedule schedule = new Schedule(resultSet.getLong("schedule_id"),
-                    resultSet.getObject("start_at", LocalDateTime.class),
-                    theme);
-
-            return new Reservation(resultSet.getLong("reservation_id"), user, schedule);
-        });
+        return jdbcTemplate.query(sql, reservationRowMapper);
     }
 
     public void delete(Long id) {
@@ -92,6 +99,7 @@ public class ReservationRepository {
     public boolean existsByScheduleId(Long scheduleId) {
         String sql = "SELECT COUNT(*) FROM reservation WHERE schedule_id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, scheduleId);
+
         return count != null && count > 0;
     }
 
@@ -116,24 +124,7 @@ public class ReservationRepository {
                 WHERE r.user_id=?
                 """;
 
-        return jdbcTemplate.query(sql, (resultSet, rowNum) -> {
-            User user = new User(
-                    resultSet.getLong("user_id"),
-                    resultSet.getString("user_name"),
-                    Role.valueOf(resultSet.getString("user_role"))
-            );
-
-            Theme theme = new Theme(resultSet.getLong("theme_id"), resultSet.getString("theme_name"),
-                    resultSet.getString("description"), resultSet.getString("image_url"),
-                    resultSet.getObject("required_time", LocalTime.class));
-
-            Schedule schedule = new Schedule(resultSet.getLong("schedule_id"),
-                    resultSet.getObject("start_at", LocalDateTime.class),
-                    theme);
-
-            return new Reservation(
-                    resultSet.getLong("reservation_id"), user, schedule);
-        }, id);
+        return jdbcTemplate.query(sql, reservationRowMapper, id);
     }
 
     public Optional<Reservation> findById(Long id) {
@@ -158,25 +149,7 @@ public class ReservationRepository {
                 """;
 
         try {
-            Reservation reservation = jdbcTemplate.queryForObject(sql, (resultSet, rowNum) -> {
-                User user = new User(
-                        resultSet.getLong("user_id"),
-                        resultSet.getString("user_name"),
-                        Role.valueOf(resultSet.getString("user_role")));
-
-                Theme theme = new Theme(
-                        resultSet.getLong("theme_id"),
-                        resultSet.getString("theme_name"),
-                        resultSet.getString("description"),
-                        resultSet.getString("image_url"),
-                        resultSet.getObject("required_time", LocalTime.class));
-
-                Schedule schedule = new Schedule(
-                        resultSet.getLong("schedule_id"),
-                        resultSet.getObject("start_at", LocalDateTime.class), theme);
-
-                return new Reservation(resultSet.getLong("reservation_id"), user, schedule);
-            }, id);
+            Reservation reservation = jdbcTemplate.queryForObject(sql, reservationRowMapper, id);
             return Optional.of(reservation);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();

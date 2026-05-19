@@ -2,6 +2,7 @@ package roomescape.user.repository;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -15,6 +16,12 @@ import java.util.Optional;
 public class UserRepository {
 
     private final JdbcTemplate jdbcTemplate;
+
+    private final RowMapper<User> userRowMapper = (rs, rowNum) -> new User(
+            rs.getLong("id"),
+            rs.getString("name"),
+            Role.valueOf(rs.getString("role"))
+    );
 
     public UserRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -40,11 +47,7 @@ public class UserRepository {
     public Optional<User> findById(Long id) {
         String sql = "SELECT id, name, role FROM \"USER\" WHERE id = ?";
         try {
-            User user = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new User(
-                    rs.getLong("id"),
-                    rs.getString("name"),
-                    Role.valueOf(rs.getString("role"))
-            ), id);
+            User user = jdbcTemplate.queryForObject(sql, userRowMapper, id);
             return Optional.of(user);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
@@ -54,11 +57,7 @@ public class UserRepository {
     public Optional<User> findByName(String name) {
         String sql = "SELECT id, name, role FROM \"USER\" WHERE name=?";
         try {
-            User user = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new User(
-                    rs.getLong("id"),
-                    rs.getString("name"),
-                    Role.valueOf(rs.getString("role"))
-            ), name);
+            User user = jdbcTemplate.queryForObject(sql, userRowMapper, name);
             return Optional.of(user);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
