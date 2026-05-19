@@ -1,7 +1,6 @@
 package roomescape.schedule.dto;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import roomescape.schedule.model.Schedule;
 
 import java.util.List;
 
@@ -12,8 +11,8 @@ public class SchedulesResponse {
         this.scheduleResponses = scheduleResponses;
     }
 
-    public static SchedulesResponse from(List<Schedule> schedules) {
-        List<ScheduleResponse> responses = schedules.stream()
+    public static SchedulesResponse from(List<ScheduleResult> results) {
+        List<ScheduleResponse> responses = results.stream()
                 .map(ScheduleResponse::of)
                 .toList();
 

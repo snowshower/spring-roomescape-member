@@ -2,12 +2,12 @@ package roomescape.schedule.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import roomescape.exception.InvalidScheduleException;
 import roomescape.reservation.repository.ReservationRepository;
-import roomescape.schedule.dto.ScheduleRequest;
-import roomescape.schedule.dto.SchedulesResponse;
-import roomescape.schedule.model.Schedule;
+import roomescape.schedule.dto.ScheduleResult;
 import roomescape.schedule.repository.ScheduleRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -22,15 +22,16 @@ public class ScheduleService {
         this.reservationRepository = reservationRepository;
     }
 
-    public SchedulesResponse findAll(ScheduleRequest request) {
-        List<Schedule> schedules = scheduleRepository.findAll(request.themeId(), request.date());
-        return SchedulesResponse.from(schedules);
+    public List<ScheduleResult> findAll(Long themeId, LocalDate date) {
+        return scheduleRepository.findAll(themeId, date).stream()
+                .map(ScheduleResult::from)
+                .toList();
     }
 
     @Transactional
     public void delete(Long id) {
         if (reservationRepository.existsByScheduleId(id)) {
-            throw new IllegalArgumentException("예약이 존재하는 스케줄은 삭제할 수 없습니다.");
+            throw new InvalidScheduleException("예약이 존재하는 스케줄은 삭제할 수 없습니다.");
         }
 
         scheduleRepository.delete(id);

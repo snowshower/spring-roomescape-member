@@ -1,7 +1,5 @@
 package roomescape.schedule.dto;
 
-import roomescape.schedule.model.Schedule;
-
 import java.time.LocalDateTime;
 
 public class ScheduleResponse {
@@ -19,12 +17,12 @@ public class ScheduleResponse {
         this.endAt = endAt;
     }
 
-    public static ScheduleResponse of(Schedule schedule) {
+    public static ScheduleResponse of(ScheduleResult result) {
         return new ScheduleResponse(
-                schedule.getId(),
-                schedule.getTheme().getName(),
-                schedule.getStartAt(),
-                schedule.getEndAt()
+                result.id(),
+                result.themeName(),
+                result.startAt(),
+                result.endAt()
         );
     }
 

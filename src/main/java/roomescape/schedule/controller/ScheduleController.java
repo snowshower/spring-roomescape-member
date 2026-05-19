@@ -4,8 +4,11 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import roomescape.schedule.dto.ScheduleRequest;
+import roomescape.schedule.dto.ScheduleResult;
 import roomescape.schedule.dto.SchedulesResponse;
 import roomescape.schedule.service.ScheduleService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/schedules")
@@ -19,7 +22,9 @@ public class ScheduleController {
 
     @GetMapping
     public ResponseEntity<SchedulesResponse> findAll(@Valid @ModelAttribute ScheduleRequest request) {
-        SchedulesResponse responses = scheduleService.findAll(request);
+        List<ScheduleResult> results = scheduleService.findAll(request.themeId(), request.date());
+        SchedulesResponse responses = SchedulesResponse.from(results);
+
         return ResponseEntity.ok(responses);
     }
 }

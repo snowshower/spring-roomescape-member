@@ -1,5 +1,6 @@
 package roomescape.schedule.model;
 
+import roomescape.exception.InvalidScheduleException;
 import roomescape.theme.model.Theme;
 
 import java.time.LocalDateTime;
@@ -59,11 +60,11 @@ public class Schedule {
 
     private void validateStartAt(Long id, LocalDateTime startAt) {
         if (startAt == null) {
-            throw new IllegalArgumentException("예약 시작 시간은 필수입니다.");
+            throw new InvalidScheduleException("예약 시작 시간은 필수입니다.");
         }
 
         if (id == null && startAt.isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("과거 날짜/시간에는 스케줄을 생성할 수 없습니다.");
+            throw new InvalidScheduleException("과거 날짜/시간에는 스케줄을 생성할 수 없습니다.");
         }
 
         if (id != null) return;
@@ -71,13 +72,13 @@ public class Schedule {
         LocalTime startTime = startAt.toLocalTime();
 
         if (startTime.isBefore(OPENING_TIME)) {
-            throw new IllegalArgumentException("오전 10시 이전에는 예약이 불가능합니다.");
+            throw new InvalidScheduleException("오전 10시 이전에는 예약이 불가능합니다.");
         }
     }
 
     private void validateEndAt(Long id, LocalDateTime endAt) {
         if (endAt == null) {
-            throw new IllegalArgumentException("예약 종료 시간은 필수입니다.");
+            throw new InvalidScheduleException("예약 종료 시간은 필수입니다.");
         }
 
         if (id != null) return;
@@ -85,13 +86,13 @@ public class Schedule {
         LocalTime endTime = endAt.toLocalTime();
 
         if (endTime.isAfter(CLOSE_TIME)) {
-            throw new IllegalArgumentException("오후 8시 이후에는 예약이 불가능합니다.");
+            throw new InvalidScheduleException("오후 8시 이후에는 예약이 불가능합니다.");
         }
     }
 
     private void validateTheme(Theme theme) {
         if (theme == null) {
-            throw new IllegalArgumentException("테마 정보는 필수입니다.");
+            throw new InvalidScheduleException("테마 정보는 필수입니다.");
         }
     }
 }

@@ -5,9 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import roomescape.schedule.dto.ScheduleRequest;
-import roomescape.schedule.dto.ScheduleResponse;
-import roomescape.schedule.dto.SchedulesResponse;
+import roomescape.exception.InvalidScheduleException;
+import roomescape.schedule.dto.ScheduleResult;
 import roomescape.schedule.model.Schedule;
 import roomescape.theme.model.Theme;
 import roomescape.support.DatabaseHelper;
@@ -48,15 +47,12 @@ class ScheduleServiceTest {
         databaseHelper.insertSchedule(1L, themeId, "2026-12-10 12:00:00", "2026-12-10 14:00:00");
         databaseHelper.insertSchedule(2L, themeId, "2026-12-10 16:00:00", "2026-12-10 18:00:00");
 
-        ScheduleRequest request = new ScheduleRequest(LocalDate.of(2026, 12, 10), themeId);
+        List<ScheduleResult> results = scheduleService.findAll(themeId, LocalDate.of(2026, 12, 10));
 
-        SchedulesResponse responses = scheduleService.findAll(request);
-        List<ScheduleResponse> responseList = responses.getScheduleResponses();
-
-        assertThat(responseList).isNotNull();
-        assertThat(responseList).hasSize(2);
-        assertThat(responseList.get(0).getStartAt()).isEqualTo(schedule1.getStartAt());
-        assertThat(responseList.get(1).getStartAt()).isEqualTo(schedule2.getStartAt());
+        assertThat(results).isNotNull();
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).startAt()).isEqualTo(schedule1.getStartAt());
+        assertThat(results.get(1).startAt()).isEqualTo(schedule2.getStartAt());
     }
 
     @Test
@@ -67,7 +63,7 @@ class ScheduleServiceTest {
         databaseHelper.insertReservation(51L, 51L, 51L);
 
         assertThatThrownBy(() -> scheduleService.delete(51L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(InvalidScheduleException.class)
                 .hasMessage("예약이 존재하는 스케줄은 삭제할 수 없습니다.");
     }
 
