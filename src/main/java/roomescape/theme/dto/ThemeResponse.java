@@ -1,7 +1,5 @@
 package roomescape.theme.dto;
 
-import roomescape.theme.model.Theme;
-
 import java.time.LocalTime;
 
 public class ThemeResponse {
@@ -20,13 +18,13 @@ public class ThemeResponse {
         this.requiredTime = requiredTime;
     }
 
-    public static ThemeResponse from(Theme theme) {
+    public static ThemeResponse from(ThemeResult result) {
         return new ThemeResponse(
-                theme.getId(),
-                theme.getName(),
-                theme.getDescription(),
-                theme.getImageUrl(),
-                theme.getRequiredTime()
+                result.id(),
+                result.name(),
+                result.description(),
+                result.imageUrl(),
+                result.requiredTime()
         );
     }
 

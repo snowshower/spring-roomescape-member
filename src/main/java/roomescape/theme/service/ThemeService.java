@@ -2,6 +2,7 @@ package roomescape.theme.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import roomescape.exception.InvalidThemeException;
 import roomescape.schedule.repository.ScheduleRepository;
 import roomescape.theme.dto.*;
 import roomescape.theme.model.Theme;
@@ -21,28 +22,29 @@ public class ThemeService {
         this.scheduleRepository = scheduleRepository;
     }
 
-    public ThemesResponse findAll() {
-        List<Theme> themes = themeRepository.findAll();
-        return ThemesResponse.from(themes);
+    public List<ThemeResult> findAll() {
+        return themeRepository.findAll().stream()
+                .map(ThemeResult::from)
+                .toList();
     }
 
     @Transactional
-    public ThemeResponse create(ThemeRequest request) {
-        Theme theme = new Theme(request.name(), request.description(), request.imageUrl(), request.requiredTime());
-        Long id = themeRepository.create(theme);
-        return ThemeResponse.from(new Theme(id, request.name(), request.description(), request.imageUrl(), request.requiredTime()));
+    public ThemeResult create(ThemeCreateCommand command) {
+        Theme theme = new Theme(command.name(), command.description(), command.imageUrl(), command.requiredTime());
+        Theme savedTheme = themeRepository.create(theme);
+
+        return ThemeResult.from(savedTheme);
     }
 
     @Transactional
     public void delete(Long id) {
         if (scheduleRepository.existsByThemeId(id)) {
-            throw new IllegalArgumentException("사용 중인 테마는 삭제할 수 없습니다.");
+            throw new InvalidThemeException("사용 중인 테마는 삭제할 수 없습니다.");
         }
         themeRepository.delete(id);
     }
 
-    public PopularThemesResponse findPopularThemes(int limit, int days) {
-        List<PopularThemeResponse> responses = themeRepository.findPopularThemes(limit, days);
-        return PopularThemesResponse.from(responses);
+    public List<PopularThemeResult> findPopularThemes(int limit, int days) {
+        return themeRepository.findPopularThemes(limit, days);
     }
 }

@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import roomescape.theme.dto.PopularThemeResponse;
+import roomescape.theme.dto.PopularThemeResult;
 import roomescape.theme.model.Theme;
 
 import java.sql.PreparedStatement;
@@ -41,7 +41,7 @@ public class ThemeRepository {
         );
     }
 
-    public Long create(Theme theme) {
+    public Theme create(Theme theme) {
         String sql = "INSERT INTO theme (name, description, image_url, required_time) VALUES (?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -54,7 +54,10 @@ public class ThemeRepository {
                     ps.setObject(4, theme.getRequiredTime());
                     return ps;
                 }, keyHolder);
-        return keyHolder.getKey().longValue();
+        Long generatedId = keyHolder.getKey().longValue();
+
+        return new Theme(generatedId, theme.getName(), theme.getDescription(),
+                theme.getImageUrl(), theme.getRequiredTime());
     }
 
     public void delete(Long id) {
@@ -78,7 +81,7 @@ public class ThemeRepository {
         }
     }
 
-    public List<PopularThemeResponse> findPopularThemes(int limit, int days) {
+    public List<PopularThemeResult> findPopularThemes(int limit, int days) {
         String sql = """
                 SELECT t.name AS theme_name, COUNT(r.id) AS reservation_count
                 FROM theme t
@@ -95,7 +98,7 @@ public class ThemeRepository {
         LocalDateTime endAt = today.atStartOfDay();
 
         return jdbcTemplate.query(sql, (resultSet, rowNum) -> {
-            return PopularThemeResponse.of(
+            return PopularThemeResult.of(
                     resultSet.getString("theme_name"),
                     resultSet.getInt("reservation_count")
             );

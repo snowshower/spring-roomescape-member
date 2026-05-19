@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
-import roomescape.theme.dto.PopularThemeResponse;
+import roomescape.theme.dto.PopularThemeResult;
 import roomescape.theme.model.Theme;
 import roomescape.support.DatabaseHelper;
 
@@ -40,7 +40,8 @@ class ThemeRepositoryTest {
     void 테마를_데이터베이스에_성공적으로_저장하고_생성된_ID를_반환한다() {
         Theme theme = new Theme("테마", "설명", "경로", LocalTime.of(2, 0));
 
-        Long savedId = themeRepository.create(theme);
+        Theme savedTheme = themeRepository.create(theme);
+        Long savedId = savedTheme.getId();
 
         assertThat(savedId).isNotNull();
 
@@ -51,7 +52,8 @@ class ThemeRepositoryTest {
     @Test
     void 테마를_데이터베이스에서_정상적으로_삭제한다() {
         Theme theme = new Theme("테마", "삭제", "경로", LocalTime.of(2, 0));
-        Long savedId = themeRepository.create(theme);
+        Theme savedTheme = themeRepository.create(theme);
+        Long savedId = savedTheme.getId();
 
         themeRepository.delete(savedId);
 
@@ -84,8 +86,10 @@ class ThemeRepositoryTest {
     void 최근_예약이_많은_순서대로_인기_테마를_조회한다() {
         jdbcTemplate.update("INSERT INTO \"USER\" (id, name, role) VALUES (?, ?, ?)", 1L, "user1", "USER");
 
-        Long themeId1 = themeRepository.create(new Theme("테마1", "설명1", "경로1", LocalTime.of(2, 0)));
-        Long themeId2 = themeRepository.create(new Theme("테마2", "설명2", "경로2", LocalTime.of(2, 0)));
+        Theme theme1 = themeRepository.create(new Theme("테마1", "설명1", "경로1", LocalTime.of(2, 0)));
+        Theme theme2 = themeRepository.create(new Theme("테마2", "설명2", "경로2", LocalTime.of(2, 0)));
+        Long themeId1 = theme1.getId();
+        Long themeId2 = theme2.getId();
 
         LocalDateTime yesterday = LocalDate.now().minusDays(1).atTime(10, 0);
 
@@ -100,12 +104,12 @@ class ThemeRepositoryTest {
         jdbcTemplate.update("INSERT INTO reservation (schedule_id, user_id) VALUES (?, ?)", 2L, 1L);
         jdbcTemplate.update("INSERT INTO reservation (schedule_id, user_id) VALUES (?, ?)", 3L, 1L);
 
-        List<PopularThemeResponse> popularThemes = themeRepository.findPopularThemes(10, 7);
+        List<PopularThemeResult> results = themeRepository.findPopularThemes(10, 7);
 
-        assertThat(popularThemes).hasSize(2);
-        assertThat(popularThemes.get(0).getThemeName()).isEqualTo("테마1");
-        assertThat(popularThemes.get(0).getReservationCount()).isEqualTo(2);
-        assertThat(popularThemes.get(1).getThemeName()).isEqualTo("테마2");
-        assertThat(popularThemes.get(1).getReservationCount()).isEqualTo(1);
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).themeName()).isEqualTo("테마1");
+        assertThat(results.get(0).reservationCount()).isEqualTo(2);
+        assertThat(results.get(1).themeName()).isEqualTo("테마2");
+        assertThat(results.get(1).reservationCount()).isEqualTo(1);
     }
 }

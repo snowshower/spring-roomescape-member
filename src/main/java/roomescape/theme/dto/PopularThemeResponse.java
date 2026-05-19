@@ -17,6 +17,10 @@ public class PopularThemeResponse {
         );
     }
 
+    public static PopularThemeResponse from(PopularThemeResult result) {
+        return new PopularThemeResponse(result.themeName(), result.reservationCount());
+    }
+
     public String getThemeName() {
         return themeName;
     }

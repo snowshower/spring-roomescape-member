@@ -4,20 +4,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
-import roomescape.theme.dto.PopularThemesResponse;
-import roomescape.theme.dto.ThemeRequest;
-import roomescape.theme.dto.ThemeResponse;
-import roomescape.theme.dto.ThemesResponse;
-import roomescape.theme.model.Theme;
+import roomescape.exception.InvalidThemeException;
+import roomescape.theme.dto.*;
 import roomescape.support.DatabaseHelper;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @SpringBootTest
@@ -26,9 +24,6 @@ class ThemeServiceTest {
 
     @Autowired
     private ThemeService themeService;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
 
     @Autowired
     private DatabaseHelper databaseHelper;
@@ -40,69 +35,75 @@ class ThemeServiceTest {
 
     @Test
     void 새로운_테마를_생성하고_쩡상적으로_응답을_반환한다() {
-        ThemeRequest request = new ThemeRequest("공포 테마", "무서워", "무서워", LocalTime.of(2, 0));
+        ThemeCreateCommand command = new ThemeCreateCommand("공포 테마", "무서워", "무서워", LocalTime.of(2, 0));
+        ThemeResult result = themeService.create(command);
 
-        ThemeResponse response = themeService.create(request);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getId()).isNotNull();
-        assertThat(response.getName()).isEqualTo("공포 테마");
-        assertThat(response.getDescription()).isEqualTo("무서워");
-        assertThat(response.getImageUrl()).isEqualTo("무서워");
+        assertThat(result).isNotNull();
+        assertThat(result.id()).isNotNull();
+        assertThat(result.name()).isEqualTo("공포 테마");
+        assertThat(result.description()).isEqualTo("무서워");
+        assertThat(result.imageUrl()).isEqualTo("무서워");
     }
 
     @Test
     void 테마를_정상적으로_삭제한다() {
-        ThemeRequest request = new ThemeRequest("코믹 테마", "웃겨", "웃겨", LocalTime.of(2, 0));
-        ThemeResponse response = themeService.create(request);
+        ThemeCreateCommand command = new ThemeCreateCommand("코믹 테마", "웃겨", "웃겨", LocalTime.of(2, 0));
+        ThemeResult result = themeService.create(command);
 
-        assertDoesNotThrow(() -> themeService.delete(response.getId()));
+        assertDoesNotThrow(() -> themeService.delete(result.id()));
     }
 
     @Test
     void 테마를_전체_조회한다() {
-        Theme theme1 = new Theme(1L, "테마1", "설명1", "경로1", LocalTime.of(2, 0));
-        Theme theme2 = new Theme(2L, "테마2", "설명2", "경로2", LocalTime.of(2, 0));
+        ThemeCreateCommand command1 = new ThemeCreateCommand("테마1", "설명1", "경로1", LocalTime.of(2, 0));
+        ThemeCreateCommand command2 = new ThemeCreateCommand("테마2", "설명2", "경로2", LocalTime.of(2, 0));
 
-        ThemeRequest theme1Request = new ThemeRequest(theme1.getName(), theme1.getDescription(), theme1.getImageUrl(), theme1.getRequiredTime());
-        ThemeRequest theme2Request = new ThemeRequest(theme2.getName(), theme2.getDescription(), theme2.getImageUrl(), theme2.getRequiredTime());
+        ThemeResult result1 = themeService.create(command1);
+        ThemeResult result2 = themeService.create(command2);
 
-        themeService.create(theme1Request);
-        themeService.create(theme2Request);
+        List<ThemeResult> results = themeService.findAll();
 
-        ThemesResponse response = themeService.findAll();
-
-        assertThat(response).isNotNull();
-        assertThat(response.getThemeResponses()).hasSize(2);
+        assertThat(results).isNotNull();
+        assertThat(results).hasSize(2);
     }
 
     @Test
     void 최근_일주일간_예약이_많은_순서대로_인기_테마를_조회한다() {
-        jdbcTemplate.update("INSERT INTO \"USER\" (id, name, role) VALUES (?, ?, ?)", 1L, "user1", "USER");
+        databaseHelper.insertUser(1L, "user1", "USER");
 
-        ThemeResponse theme1 = themeService.create(new ThemeRequest("테마1", "설명1", "경로1", LocalTime.of(2, 0)));
-        ThemeResponse theme2 = themeService.create(new ThemeRequest("테마2", "설명2", "경로2", LocalTime.of(2, 0)));
+        ThemeCreateCommand command1 = new ThemeCreateCommand("테마1", "설명1", "경로1", LocalTime.of(2, 0));
+        ThemeCreateCommand command2 = new ThemeCreateCommand("테마2", "설명2", "경로2", LocalTime.of(2, 0));
+
+        ThemeResult result1 = themeService.create(command1);
+        ThemeResult result2 = themeService.create(command2);
 
         LocalDateTime yesterday = LocalDate.now().minusDays(1).atTime(10, 0);
 
-        jdbcTemplate.update("INSERT INTO schedule (id, theme_id, start_at, end_at) VALUES (?, ?, ?, ?)",
-                1L, theme1.getId(), yesterday, yesterday.plusHours(2));
-        jdbcTemplate.update("INSERT INTO schedule (id, theme_id, start_at, end_at) VALUES (?, ?, ?, ?)",
-                2L, theme1.getId(), yesterday.plusHours(3), yesterday.plusHours(5));
-        jdbcTemplate.update("INSERT INTO schedule (id, theme_id, start_at, end_at) VALUES (?, ?, ?, ?)",
-                3L, theme2.getId(), yesterday, yesterday.plusHours(2));
+        databaseHelper.insertSchedule(1L, result1.id(), yesterday.toString(), yesterday.plusHours(2).toString());
+        databaseHelper.insertSchedule(2L, result1.id(), yesterday.plusHours(3).toString(), yesterday.plusHours(5).toString());
+        databaseHelper.insertSchedule(3L, result2.id(), yesterday.toString(), yesterday.plusHours(2).toString());
 
-        jdbcTemplate.update("INSERT INTO reservation (schedule_id, user_id) VALUES (?, ?)", 1L, 1L);
-        jdbcTemplate.update("INSERT INTO reservation (schedule_id, user_id) VALUES (?, ?)", 2L, 1L);
-        jdbcTemplate.update("INSERT INTO reservation (schedule_id, user_id) VALUES (?, ?)", 3L, 1L);
+        databaseHelper.insertReservation(1L, 1L, 1L);
+        databaseHelper.insertReservation(2L, 2L, 1L);
+        databaseHelper.insertReservation(3L, 3L, 1L);
 
-        PopularThemesResponse response = themeService.findPopularThemes(10, 7);
+        List<PopularThemeResult> results = themeService.findPopularThemes(10, 7);
 
-        assertThat(response).isNotNull();
-        assertThat(response.getPopularThemeResponses()).hasSize(2);
-        assertThat(response.getPopularThemeResponses().get(0).getThemeName()).isEqualTo("테마1");
-        assertThat(response.getPopularThemeResponses().get(0).getReservationCount()).isEqualTo(2);
-        assertThat(response.getPopularThemeResponses().get(1).getThemeName()).isEqualTo("테마2");
-        assertThat(response.getPopularThemeResponses().get(1).getReservationCount()).isEqualTo(1);
+        assertThat(results).isNotNull();
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).themeName()).isEqualTo("테마1");
+        assertThat(results.get(0).reservationCount()).isEqualTo(2);
+        assertThat(results.get(1).themeName()).isEqualTo("테마2");
+        assertThat(results.get(1).reservationCount()).isEqualTo(1);
+    }
+
+    @Test
+    void 사용_중인_테마를_삭제하려고_하면_예외가_발생한다() {
+        ThemeCreateCommand command = new ThemeCreateCommand("테마1", "설명1", "경로1", LocalTime.of(2, 0));
+        ThemeResult result = themeService.create(command);
+        databaseHelper.insertSchedule(99L, result.id(), "2026-10-10 10:00:00", "2026-10-10 12:00:00");
+
+        assertThatThrownBy(() -> themeService.delete(result.id()))
+                .isInstanceOf(InvalidThemeException.class);
     }
 }

@@ -1,7 +1,6 @@
 package roomescape.theme.dto;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import roomescape.theme.model.Theme;
 
 import java.util.List;
 
@@ -12,8 +11,8 @@ public class ThemesResponse {
         this.themeResponses = themeResponses;
     }
 
-    public static ThemesResponse from(List<Theme> themes) {
-        List<ThemeResponse> responses = themes.stream()
+    public static ThemesResponse from(List<ThemeResult> results) {
+        List<ThemeResponse> responses = results.stream()
                 .map(ThemeResponse::from)
                 .toList();
 
