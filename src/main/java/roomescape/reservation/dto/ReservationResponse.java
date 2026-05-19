@@ -1,7 +1,5 @@
 package roomescape.reservation.dto;
 
-import roomescape.reservation.model.Reservation;
-
 import java.time.LocalDateTime;
 
 public class ReservationResponse {
@@ -26,16 +24,16 @@ public class ReservationResponse {
         this.endAt = endAt;
     }
 
-    public static ReservationResponse from(Reservation reservation) {
+    public static ReservationResponse from(ReservationResult result) {
         return new ReservationResponse(
-                reservation.getId(),
-                reservation.getUser().getId(),
-                reservation.getUser().getName(),
-                reservation.getTheme().getId(),
-                reservation.getTheme().getName(),
-                reservation.getSchedule().getId(),
-                reservation.getSchedule().getStartAt(),
-                reservation.getSchedule().getEndAt()
+                result.reservationId(),
+                result.userId(),
+                result.userName(),
+                result.themeId(),
+                result.themeName(),
+                result.scheduleId(),
+                result.startAt(),
+                result.endAt()
         );
     }
 

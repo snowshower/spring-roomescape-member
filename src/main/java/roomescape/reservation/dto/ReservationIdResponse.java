@@ -1,7 +1,5 @@
 package roomescape.reservation.dto;
 
-import roomescape.reservation.model.Reservation;
-
 public class ReservationIdResponse {
 
     private final Long id;
@@ -10,8 +8,8 @@ public class ReservationIdResponse {
         this.id = id;
     }
 
-    public static ReservationIdResponse from(Reservation reservation) {
-        return new ReservationIdResponse(reservation.getId());
+    public static ReservationIdResponse from(ReservationResult result) {
+        return new ReservationIdResponse(result.reservationId());
     }
 
     public Long getId() {

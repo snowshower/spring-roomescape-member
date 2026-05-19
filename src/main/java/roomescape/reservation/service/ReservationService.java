@@ -5,8 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import roomescape.exception.AuthorizationException;
 import roomescape.exception.InvalidReservationException;
 import roomescape.exception.ResourceNotFoundException;
-import roomescape.reservation.dto.ReservationIdResponse;
-import roomescape.reservation.dto.ReservationsResponse;
+import roomescape.reservation.dto.ReservationResult;
 import roomescape.reservation.model.Reservation;
 import roomescape.exception.SameScheduleException;
 import roomescape.reservation.repository.ReservationRepository;
@@ -33,7 +32,7 @@ public class ReservationService {
     }
 
     @Transactional
-    public ReservationIdResponse create(Long userId, Long scheduleId) {
+    public ReservationResult create(Long userId, Long scheduleId) {
         User user = userService.getUserById(userId);
 
         Schedule schedule = scheduleRepository.findById(scheduleId)
@@ -41,25 +40,29 @@ public class ReservationService {
 
         validateReservation(schedule);
 
-        Reservation reservation = new Reservation(user, schedule, schedule.getTheme());
+        Reservation reservation = new Reservation(user, schedule);
         Reservation savedReservation = reservationRepository.create(reservation);
-        return ReservationIdResponse.from(savedReservation);
+
+        return ReservationResult.from(savedReservation);
     }
 
-    public ReservationsResponse findAll() {
-        List<Reservation> responses = reservationRepository.findAll();
-        return ReservationsResponse.from(responses);
+    public List<ReservationResult> findAll() {
+        return reservationRepository.findAll().stream()
+                .map(ReservationResult::from)
+                .toList();
     }
 
     @Transactional
-    public void delete(long id) {
+    public void delete(Long id) {
         reservationRepository.delete(id);
     }
 
-    public ReservationsResponse findAllByUserId(Long id) {
+    public List<ReservationResult> findAllByUserId(Long id) {
         userService.getUserById(id);
-        List<Reservation> responses = reservationRepository.findAllByUserId(id);
-        return ReservationsResponse.from(responses);
+
+        return reservationRepository.findAllByUserId(id).stream()
+                .map(ReservationResult::from)
+                .toList();
     }
 
     @Transactional
@@ -99,14 +102,16 @@ public class ReservationService {
         reservationRepository.updateSchedule(reservationId, newScheduleId);
     }
 
-    public Reservation findById(Long reservationId) {
-        return reservationRepository.findById(reservationId)
+    public ReservationResult findById(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 예약입니다."));
+
+        return ReservationResult.from(reservation);
     }
 
     private void validateReservation(Schedule schedule) {
         if (schedule.getStartAt().isBefore(LocalDateTime.now())) {
-            throw new InvalidReservationException("과거 날짜/시간에는 스케줄을 생성할 수 없습니다.");
+            throw new InvalidReservationException("과거 날짜/시간의 스케줄은 예약할 수 없습니다.");
         }
 
         if (reservationRepository.existsByScheduleId(schedule.getId())) {

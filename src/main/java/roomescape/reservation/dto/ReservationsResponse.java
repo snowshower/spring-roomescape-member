@@ -1,7 +1,6 @@
 package roomescape.reservation.dto;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import roomescape.reservation.model.Reservation;
 
 import java.util.List;
 
@@ -13,8 +12,8 @@ public class ReservationsResponse {
         this.reservationsResponse = reservationsDto;
     }
 
-    public static ReservationsResponse from(List<Reservation> reservations) {
-        List<ReservationResponse> responses = reservations.stream()
+    public static ReservationsResponse from(List<ReservationResult> results) {
+        List<ReservationResponse> responses = results.stream()
                 .map(ReservationResponse::from)
                 .toList();
 

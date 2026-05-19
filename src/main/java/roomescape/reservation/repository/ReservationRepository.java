@@ -41,7 +41,7 @@ public class ReservationRepository {
 
         Long generatedId = keyHolder.getKey().longValue();
 
-        return new Reservation(generatedId, reservation.getUser(), reservation.getSchedule(), reservation.getTheme());
+        return new Reservation(generatedId, reservation.getUser(), reservation.getSchedule());
     }
 
     public List<Reservation> findAll() {
@@ -80,7 +80,7 @@ public class ReservationRepository {
                     resultSet.getObject("start_at", LocalDateTime.class),
                     theme);
 
-            return new Reservation(resultSet.getLong("reservation_id"), user, schedule, theme);
+            return new Reservation(resultSet.getLong("reservation_id"), user, schedule);
         });
     }
 
@@ -132,7 +132,7 @@ public class ReservationRepository {
                     theme);
 
             return new Reservation(
-                    resultSet.getLong("reservation_id"), user, schedule, theme);
+                    resultSet.getLong("reservation_id"), user, schedule);
         }, id);
     }
 
@@ -175,7 +175,7 @@ public class ReservationRepository {
                         resultSet.getLong("schedule_id"),
                         resultSet.getObject("start_at", LocalDateTime.class), theme);
 
-                return new Reservation(resultSet.getLong("reservation_id"), user, schedule, theme);
+                return new Reservation(resultSet.getLong("reservation_id"), user, schedule);
             }, id);
             return Optional.of(reservation);
         } catch (EmptyResultDataAccessException e) {

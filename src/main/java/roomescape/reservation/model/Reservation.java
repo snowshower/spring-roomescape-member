@@ -1,8 +1,8 @@
 package roomescape.reservation.model;
 
+import roomescape.exception.InvalidReservationException;
 import roomescape.exception.ReservationDeadlineException;
 import roomescape.schedule.model.Schedule;
-import roomescape.theme.model.Theme;
 import roomescape.user.model.User;
 
 import java.time.LocalDateTime;
@@ -12,23 +12,20 @@ public class Reservation {
     private Long id;
     private User user;
     private Schedule schedule;
-    private Theme theme;
 
     protected Reservation() {
     }
 
-    public Reservation(User user, Schedule schedule, Theme theme) {
-        this(null, user, schedule, theme);
+    public Reservation(User user, Schedule schedule) {
+        this(null, user, schedule);
     }
 
-    public Reservation(Long id, User user, Schedule schedule, Theme theme) {
+    public Reservation(Long id, User user, Schedule schedule) {
         validateUser(user);
         validateSchedule(schedule);
-        validateTheme(theme);
         this.id = id;
         this.user = user;
         this.schedule = schedule;
-        this.theme = theme;
     }
 
     public boolean isOwnedBy(Long userId) {
@@ -54,25 +51,15 @@ public class Reservation {
         return schedule;
     }
 
-    public Theme getTheme() {
-        return theme;
-    }
-
     private void validateUser(User user) {
         if (user == null) {
-            throw new IllegalArgumentException("사용자 정보는 필수입니다.");
+            throw new InvalidReservationException("사용자 정보는 필수입니다.");
         }
     }
 
     private void validateSchedule(Schedule schedule) {
         if (schedule == null) {
-            throw new IllegalArgumentException("스케줄 정보는 필수입니다.");
-        }
-    }
-
-    private void validateTheme(Theme theme) {
-        if (theme == null) {
-            throw new IllegalArgumentException("테마 정보는 필수입니다.");
+            throw new InvalidReservationException("스케줄 정보는 필수입니다.");
         }
     }
 }

@@ -47,7 +47,7 @@ public class ReservationRepositoryTest {
 
     @Test
     void 예약을_데이터베이스에_성공적으로_저장하고_생성된_ID를_반환한다() {
-        Reservation reservation = new Reservation(user, schedule, theme);
+        Reservation reservation = new Reservation(user, schedule);
 
         Reservation savedReservation = reservationRepository.create(reservation);
         Long savedId = savedReservation.getId();
@@ -61,7 +61,7 @@ public class ReservationRepositoryTest {
 
     @Test
     void 예약을_데이터베이스에서_정상적으로_조회한다() {
-        Reservation reservation = new Reservation(user, schedule, theme);
+        Reservation reservation = new Reservation(user, schedule);
 
         reservationRepository.create(reservation);
 
@@ -71,12 +71,11 @@ public class ReservationRepositoryTest {
         assertThat(reservations.size()).isEqualTo(1);
         assertThat(reservations.getFirst().getUser().getName()).isEqualTo(user.getName());
         assertThat(reservations.getFirst().getSchedule().getStartAt()).isEqualTo(schedule.getStartAt());
-        assertThat(reservations.getFirst().getTheme().getName()).isEqualTo(theme.getName());
     }
 
     @Test
     void 예약을_데이터베이스에서_정상적으로_삭제한다() {
-        Reservation reservation = new Reservation(user, schedule, theme);
+        Reservation reservation = new Reservation(user, schedule);
         Reservation savedReservation = reservationRepository.create(reservation);
         Long savedId = savedReservation.getId();
 
@@ -89,7 +88,7 @@ public class ReservationRepositoryTest {
 
     @Test
     void 사용자가_본인의_예약_목록을_정상적으로_조회한다() {
-        Reservation reservation = new Reservation(user, schedule, theme);
+        Reservation reservation = new Reservation(user, schedule);
 
         reservationRepository.create(reservation);
 
@@ -99,13 +98,12 @@ public class ReservationRepositoryTest {
         assertThat(reservations.size()).isEqualTo(1);
         assertThat(reservations.getFirst().getUser().getName()).isEqualTo(user.getName());
         assertThat(reservations.getFirst().getSchedule().getStartAt()).isEqualTo(schedule.getStartAt());
-        assertThat(reservations.getFirst().getTheme().getName()).isEqualTo(theme.getName());
         assertThat(reservations.getFirst().getUser().getId()).isEqualTo(user.getId());
     }
 
     @Test
     void ID로_예약을_조회하면_존재하는_경우_Optional에_담아_반환한다() {
-        Reservation reservation = new Reservation(user, schedule, theme);
+        Reservation reservation = new Reservation(user, schedule);
         Reservation savedReservation = reservationRepository.create(reservation);
         Long savedId = savedReservation.getId();
 
@@ -127,7 +125,7 @@ public class ReservationRepositoryTest {
 
     @Test
     void 예약의_스케줄을_정상적으로_변경한다() {
-        Reservation reservation = new Reservation(user, schedule, theme);
+        Reservation reservation = new Reservation(user, schedule);
         Reservation savedReservation = reservationRepository.create(reservation);
         Long reservationId = savedReservation.getId();
 
