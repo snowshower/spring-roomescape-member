@@ -1,7 +1,5 @@
 package roomescape.user.dto;
 
-import roomescape.user.model.User;
-
 public class UserResponse {
 
     private final Long id;
@@ -12,8 +10,8 @@ public class UserResponse {
         this.name = name;
     }
 
-    public static UserResponse from(User user) {
-        return new UserResponse(user.getId(), user.getName());
+    public static UserResponse from(UserResult result) {
+        return new UserResponse(result.id(), result.name());
     }
 
     public Long getId() {

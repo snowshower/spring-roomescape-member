@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import roomescape.user.dto.UserLoginRequest;
 import roomescape.user.dto.UserRequest;
 import roomescape.user.dto.UserResponse;
-import roomescape.user.model.User;
+import roomescape.user.dto.UserResult;
 import roomescape.user.service.UserService;
 
 @RestController
@@ -25,15 +25,17 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<UserResponse> create(@RequestBody @Valid UserRequest request) {
-        User user = userService.create(request.name());
-        UserResponse response = UserResponse.from(user);
+        UserResult result = userService.create(request.name());
+        UserResponse response = UserResponse.from(result);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
     public ResponseEntity<UserResponse> login(@RequestBody @Valid UserLoginRequest request) {
-        User user = userService.getOrCreateUserByName(request.name());
-        UserResponse response = UserResponse.from(user);
+        UserResult result = userService.getOrCreateUserByName(request.name());
+        UserResponse response = UserResponse.from(result);
+
         return ResponseEntity.ok(response);
     }
 }

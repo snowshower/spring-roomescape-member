@@ -1,13 +1,16 @@
 package roomescape.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import roomescape.exception.SameNameException;
 import roomescape.support.DatabaseHelper;
+import roomescape.user.dto.UserResult;
 import roomescape.user.model.User;
 import roomescape.user.repository.UserRepository;
 
@@ -33,28 +36,37 @@ class UserServiceTest {
 
     @Test
     void 유저를_생성하면_DB에_실제로_저장되다() {
-        User user = userService.create("루크");
+        UserResult result = userService.create("루크");
 
-        assertThat(user.getId()).isNotNull();
-        assertThat(user.getName()).isEqualTo("루크");
+        assertThat(result.id()).isNotNull();
+        assertThat(result.name()).isEqualTo("루크");
     }
 
     @Test
     void 기존_유저가_로그인하면_새로_생성하지_않고_조회한다() {
-        User user = userService.getOrCreateUserByName("소낙눈");
+        databaseHelper.insertUser(1L, "소낙눈", "USER");
+        UserResult result = userService.getOrCreateUserByName("소낙눈");
 
-        assertThat(user.getId()).isEqualTo(user.getId());
+        assertThat(result.name()).isEqualTo("소낙눈");
     }
 
     @Test
     void 새로운_유저가_로그인하면_DB에_새로_저장된다() {
-        User user = userService.getOrCreateUserByName("피노");
+        UserResult result = userService.getOrCreateUserByName("피노");
 
-        assertThat(user).isNotNull();
-        assertThat(user.getId()).isNotNull();
-        assertThat(user.getName()).isEqualTo("피노");
+        assertThat(result).isNotNull();
+        assertThat(result.id()).isNotNull();
+        assertThat(result.name()).isEqualTo("피노");
 
-        Optional<User> foundUser = userRepository.findById(user.getId());
+        Optional<User> foundUser = userRepository.findById(result.id());
         assertThat(foundUser).isPresent();
+    }
+
+    @Test
+    void 이미_존재하는_이름으로_생성하려고_하면_예외가_발생한다() {
+        databaseHelper.insertUser(1L, "루크", "USER");
+
+        assertThatThrownBy(() -> userService.create("루크"))
+                .isInstanceOf(SameNameException.class);
     }
 }
