@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import org.junit.jupiter.api.Test;
-import roomescape.exception.InvalidScheduleException;
+import roomescape.schedule.exception.*;
 import roomescape.theme.model.Theme;
 
 class ScheduleTest {
@@ -30,7 +30,7 @@ class ScheduleTest {
         Theme theme = new Theme("테마", "설명", "경로", LocalTime.of(2, 0));
 
         assertThatThrownBy(() -> new Schedule(null, theme))
-                .isInstanceOf(InvalidScheduleException.class)
+                .isInstanceOf(ScheduleException.class)
                 .hasMessage("예약 시작 시간은 필수입니다.");
     }
 
@@ -39,7 +39,7 @@ class ScheduleTest {
         LocalDateTime startAt = LocalDateTime.of(2026, 12, 10, 10, 0);
 
         assertThatThrownBy(() -> new Schedule(startAt, null))
-                .isInstanceOf(InvalidScheduleException.class)
+                .isInstanceOf(ScheduleException.class)
                 .hasMessage("테마 정보는 필수입니다.");
     }
 
@@ -70,7 +70,7 @@ class ScheduleTest {
         Theme theme = new Theme("테마", "설명", "경로", LocalTime.of(2, 0));
 
         assertThatThrownBy(() -> new Schedule(startAt, theme))
-                .isInstanceOf(InvalidScheduleException.class)
+                .isInstanceOf(ScheduleException.class)
                 .hasMessage("오전 10시 이전에는 예약이 불가능합니다.");
     }
 
@@ -80,7 +80,7 @@ class ScheduleTest {
         Theme theme = new Theme("테마", "설명", "경로", LocalTime.of(2, 0));
 
         assertThatThrownBy(() -> new Schedule(startAt, theme))
-                .isInstanceOf(InvalidScheduleException.class)
+                .isInstanceOf(ScheduleException.class)
                 .hasMessage("오후 8시 이후에는 예약이 불가능합니다.");
     }
 

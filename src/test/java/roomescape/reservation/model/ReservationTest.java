@@ -1,8 +1,8 @@
 package roomescape.reservation.model;
 
 import org.junit.jupiter.api.Test;
-import roomescape.exception.InvalidReservationException;
-import roomescape.exception.ReservationDeadlineException;
+import roomescape.reservation.exception.ReservationException;
+import roomescape.schedule.exception.ScheduleException;
 import roomescape.schedule.model.Schedule;
 import roomescape.theme.model.Theme;
 import roomescape.user.model.Role;
@@ -28,10 +28,7 @@ class ReservationTest {
     @Test
     void 스케줄이나_테마_정보가_누락되면_예외가_발생한다() {
         assertThatThrownBy(() -> new Reservation(user, null))
-                .isInstanceOf(InvalidReservationException.class);
-
-        assertThatThrownBy(() -> new Reservation(user, null))
-                .isInstanceOf(InvalidReservationException.class);
+                .isInstanceOf(ReservationException.class);
     }
 
     @Test
@@ -62,9 +59,9 @@ class ReservationTest {
         LocalDateTime pastDeadline = LocalDateTime.of(2026, 12, 10, 11, 1);
 
         assertThatThrownBy(() -> reservation.validateCancelOrChangeable(exactlyOneHourBefore))
-                .isInstanceOf(ReservationDeadlineException.class);
+                .isInstanceOf(ReservationException.class);
 
         assertThatThrownBy(() -> reservation.validateCancelOrChangeable(pastDeadline))
-                .isInstanceOf(ReservationDeadlineException.class);
+                .isInstanceOf(ReservationException.class);
     }
 }

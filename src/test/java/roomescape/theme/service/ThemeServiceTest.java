@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import roomescape.exception.InvalidThemeException;
+import roomescape.theme.exception.ThemeException;
 import roomescape.theme.dto.*;
 import roomescape.support.DatabaseHelper;
 
@@ -104,6 +104,6 @@ class ThemeServiceTest {
         databaseHelper.insertSchedule(99L, result.id(), "2026-10-10 10:00:00", "2026-10-10 12:00:00");
 
         assertThatThrownBy(() -> themeService.delete(result.id()))
-                .isInstanceOf(InvalidThemeException.class);
+                .isInstanceOf(ThemeException.class);
     }
 }

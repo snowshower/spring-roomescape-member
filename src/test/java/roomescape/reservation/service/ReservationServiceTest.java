@@ -5,11 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import roomescape.exception.AuthorizationException;
-import roomescape.exception.InvalidReservationException;
-import roomescape.exception.ResourceNotFoundException;
-import roomescape.exception.SameScheduleException;
 import roomescape.reservation.dto.ReservationResult;
+import roomescape.reservation.exception.*;
 import roomescape.reservation.model.Reservation;
 import roomescape.reservation.repository.ReservationRepository;
 import roomescape.support.DatabaseHelper;
@@ -79,8 +76,8 @@ class ReservationServiceTest {
         Long nonExistentScheduleId = 999L;
 
         assertThatThrownBy(() -> reservationService.create(USER_1.getId(), nonExistentScheduleId))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("등록된 스케줄이 없습니다.");
+                .isInstanceOf(ReservationException.class)
+                .hasMessage("존재하지 않는 스케줄입니다.");
     }
 
     @Test
@@ -89,7 +86,7 @@ class ReservationServiceTest {
         databaseHelper.insertUser(2L, "user2", "USER");
 
         assertThatThrownBy(() -> reservationService.create(2L, scheduleId))
-                .isInstanceOf(InvalidReservationException.class)
+                .isInstanceOf(ReservationException.class)
                 .hasMessage("해당 시간은 이미 예약이 완료되었습니다.");
     }
 
@@ -99,7 +96,7 @@ class ReservationServiceTest {
         databaseHelper.insertSchedule(pastScheduleId, THEME_공포.getId(), "2020-01-01 10:00:00", "2020-01-01 12:00:00");
 
         assertThatThrownBy(() -> reservationService.create(USER_1.getId(), pastScheduleId))
-                .isInstanceOf(InvalidReservationException.class)
+                .isInstanceOf(ReservationException.class)
                 .hasMessage("과거 날짜/시간의 스케줄은 예약할 수 없습니다.");
     }
 
@@ -128,7 +125,7 @@ class ReservationServiceTest {
         Long currentUserId = USER_1.getId();
 
         assertThatThrownBy(() -> reservationService.cancel(nonExistentReservationId, currentUserId))
-                .isInstanceOf(ResourceNotFoundException.class)
+                .isInstanceOf(ReservationException.class)
                 .hasMessage("존재하지 않는 예약입니다.");
     }
 
@@ -139,7 +136,7 @@ class ReservationServiceTest {
         databaseHelper.insertUser(2L, "user2", "USER");
 
         assertThatThrownBy(() -> reservationService.cancel(reservationId, 2L))
-                .isInstanceOf(AuthorizationException.class)
+                .isInstanceOf(ReservationException.class)
                 .hasMessage("예약을 취소할 권한이 없습니다.");
     }
 
@@ -164,7 +161,7 @@ class ReservationServiceTest {
         Long currentScheduleId = reservation.getSchedule().getId();
 
         assertThatThrownBy(() -> reservationService.changeSchedule(reservationId, currentScheduleId, currentUserId))
-                .isInstanceOf(SameScheduleException.class)
+                .isInstanceOf(ReservationException.class)
                 .hasMessage("기존과 동일한 스케줄로 변경할 수 없습니다.");
     }
 
@@ -175,7 +172,7 @@ class ReservationServiceTest {
         Long newScheduleId = 2L;
 
         assertThatThrownBy(() -> reservationService.changeSchedule(nonExistentReservationId, newScheduleId, currentUserId))
-                .isInstanceOf(ResourceNotFoundException.class)
+                .isInstanceOf(ReservationException.class)
                 .hasMessage("존재하지 않는 예약입니다.");
     }
 
@@ -187,7 +184,7 @@ class ReservationServiceTest {
         Long newScheduleId = 2L;
 
         assertThatThrownBy(() -> reservationService.changeSchedule(reservationId, newScheduleId, 2L))
-                .isInstanceOf(AuthorizationException.class)
+                .isInstanceOf(ReservationException.class)
                 .hasMessage("예약을 변경할 권한이 없습니다.");
     }
 
@@ -199,7 +196,7 @@ class ReservationServiceTest {
         Long nonExistentScheduleId = 999L;
 
         assertThatThrownBy(() -> reservationService.changeSchedule(reservationId, nonExistentScheduleId, currentUserId))
-                .isInstanceOf(ResourceNotFoundException.class)
+                .isInstanceOf(ReservationException.class)
                 .hasMessage("존재하지 않는 스케줄입니다.");
     }
 
@@ -213,7 +210,7 @@ class ReservationServiceTest {
         databaseHelper.insertReservation(2L, 2L, 2L);
 
         assertThatThrownBy(() -> reservationService.changeSchedule(reservationId, 2L, currentUserId))
-                .isInstanceOf(InvalidReservationException.class)
+                .isInstanceOf(ReservationException.class)
                 .hasMessage("해당 시간은 이미 예약이 완료되었습니다.");
     }
 }

@@ -2,8 +2,8 @@ package roomescape.user.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import roomescape.exception.ResourceNotFoundException;
-import roomescape.exception.SameNameException;
+import roomescape.user.exception.UserErrorCode;
+import roomescape.user.exception.UserException;
 import roomescape.user.dto.UserResult;
 import roomescape.user.model.Role;
 import roomescape.user.model.User;
@@ -23,7 +23,7 @@ public class UserService {
     @Transactional
     public UserResult create(String name) {
         if (userRepository.findByName(name).isPresent()) {
-            throw new SameNameException("이미 존재하는 사용자 이름입니다.");
+            throw new UserException(UserErrorCode.USER_ALREADY_EXISTS);
         }
 
         User user = new User(name, DEFAULT);
@@ -34,7 +34,7 @@ public class UserService {
 
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
     }
 
     @Transactional

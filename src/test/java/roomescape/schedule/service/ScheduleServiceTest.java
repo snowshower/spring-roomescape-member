@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import roomescape.exception.InvalidScheduleException;
 import roomescape.schedule.dto.ScheduleResult;
+import roomescape.schedule.exception.ScheduleException;
 import roomescape.schedule.model.Schedule;
 import roomescape.theme.model.Theme;
 import roomescape.support.DatabaseHelper;
@@ -63,7 +63,7 @@ class ScheduleServiceTest {
         databaseHelper.insertReservation(51L, 51L, 51L);
 
         assertThatThrownBy(() -> scheduleService.delete(51L))
-                .isInstanceOf(InvalidScheduleException.class)
+                .isInstanceOf(ScheduleException.class)
                 .hasMessage("예약이 존재하는 스케줄은 삭제할 수 없습니다.");
     }
 

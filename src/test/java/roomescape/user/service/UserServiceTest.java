@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import roomescape.exception.SameNameException;
 import roomescape.support.DatabaseHelper;
 import roomescape.user.dto.UserResult;
+import roomescape.user.exception.UserException;
 import roomescape.user.model.User;
 import roomescape.user.repository.UserRepository;
 
@@ -67,6 +67,6 @@ class UserServiceTest {
         databaseHelper.insertUser(1L, "루크", "USER");
 
         assertThatThrownBy(() -> userService.create("루크"))
-                .isInstanceOf(SameNameException.class);
+                .isInstanceOf(UserException.class);
     }
 }

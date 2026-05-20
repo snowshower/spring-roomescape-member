@@ -1,7 +1,9 @@
 package roomescape.reservation.model;
 
-import roomescape.exception.InvalidReservationException;
-import roomescape.exception.ReservationDeadlineException;
+import roomescape.reservation.exception.ReservationErrorCode;
+import roomescape.reservation.exception.ReservationException;
+import roomescape.schedule.exception.ScheduleErrorCode;
+import roomescape.schedule.exception.ScheduleException;
 import roomescape.schedule.model.Schedule;
 import roomescape.user.model.User;
 
@@ -35,7 +37,7 @@ public class Reservation {
     public void validateCancelOrChangeable(LocalDateTime currentTime) {
         LocalDateTime deadline = schedule.getStartAt().minusHours(1);
         if (!currentTime.isBefore(deadline)) {
-            throw new ReservationDeadlineException("방탈출 시작 1시간 전부터는 예약을 취소하거나 변경할 수 없습니다.");
+            throw new ReservationException(ReservationErrorCode.RESERVATION_DEADLINE_PASSED);
         }
     }
 
@@ -53,13 +55,13 @@ public class Reservation {
 
     private void validateUser(User user) {
         if (user == null) {
-            throw new InvalidReservationException("사용자 정보는 필수입니다.");
+            throw new ReservationException(ReservationErrorCode.USER_INFO_REQUIRED);
         }
     }
 
     private void validateSchedule(Schedule schedule) {
         if (schedule == null) {
-            throw new InvalidReservationException("스케줄 정보는 필수입니다.");
+            throw new ReservationException(ReservationErrorCode.SCHEDULE_INFO_REQUIRED);
         }
     }
 }

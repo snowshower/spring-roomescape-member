@@ -2,9 +2,10 @@ package roomescape.schedule.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import roomescape.exception.InvalidScheduleException;
 import roomescape.reservation.repository.ReservationRepository;
 import roomescape.schedule.dto.ScheduleResult;
+import roomescape.schedule.exception.ScheduleErrorCode;
+import roomescape.schedule.exception.ScheduleException;
 import roomescape.schedule.repository.ScheduleRepository;
 
 import java.time.LocalDate;
@@ -31,7 +32,7 @@ public class ScheduleService {
     @Transactional
     public void delete(Long id) {
         if (reservationRepository.existsByScheduleId(id)) {
-            throw new InvalidScheduleException("예약이 존재하는 스케줄은 삭제할 수 없습니다.");
+            throw new ScheduleException(ScheduleErrorCode.SCHEDULE_ALREADY_HAS_RESERVATIONS);
         }
 
         scheduleRepository.delete(id);

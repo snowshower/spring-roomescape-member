@@ -2,7 +2,8 @@ package roomescape.theme.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import roomescape.exception.InvalidThemeException;
+import roomescape.theme.exception.ThemeErrorCode;
+import roomescape.theme.exception.ThemeException;
 import roomescape.schedule.repository.ScheduleRepository;
 import roomescape.theme.dto.*;
 import roomescape.theme.model.Theme;
@@ -39,7 +40,7 @@ public class ThemeService {
     @Transactional
     public void delete(Long id) {
         if (scheduleRepository.existsByThemeId(id)) {
-            throw new InvalidThemeException("사용 중인 테마는 삭제할 수 없습니다.");
+            throw new ThemeException(ThemeErrorCode.THEME_ALREADY_IN_USE);
         }
         themeRepository.delete(id);
     }
