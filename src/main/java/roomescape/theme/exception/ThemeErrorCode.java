@@ -1,17 +1,17 @@
-package roomescape.reservationtime.exception;
+package roomescape.theme.exception;
 
 import org.springframework.http.HttpStatus;
 import roomescape.exception.ErrorCode;
 
-public enum ReservationTimeErrorCode implements ErrorCode {
-    RESERVATION_TIME_NOT_FOUND(HttpStatus.NOT_FOUND, "RT001", "존재하지 않는 시간입니다."),
-    RESERVATION_TIME_ALREADY_USED(HttpStatus.CONFLICT, "RT002", "사용중인 시간은 삭제할 수 없습니다.");
+public enum ThemeErrorCode implements ErrorCode {
+    THEME_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "존재하지 않는 테마입니다."),
+    ;
 
     private final HttpStatus httpStatus;
     private final String errorCode;
     private final String message;
 
-    ReservationTimeErrorCode(HttpStatus httpStatus, String errorCode, String message) {
+    ThemeErrorCode(HttpStatus httpStatus, String errorCode, String message) {
         this.httpStatus = httpStatus;
         this.errorCode = errorCode;
         this.message = message;
