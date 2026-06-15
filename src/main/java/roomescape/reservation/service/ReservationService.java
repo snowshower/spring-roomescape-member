@@ -10,6 +10,8 @@ import roomescape.reservation.exception.ReservationErrorCode;
 import roomescape.reservation.exception.ReservationException;
 import roomescape.reservationtime.dao.ReservationTimeDao;
 import roomescape.reservationtime.domain.ReservationTime;
+import roomescape.theme.dao.ThemeDao;
+import roomescape.theme.domain.Theme;
 
 import java.util.List;
 
@@ -19,21 +21,25 @@ public class ReservationService {
 
     private final ReservationDao reservationDao;
     private final ReservationTimeDao reservationTimeDao;
+    private final ThemeDao themeDao;
 
-    public ReservationService(ReservationTimeDao reservationTimeDao, ReservationDao reservationDao) {
+    public ReservationService(ReservationTimeDao reservationTimeDao, ReservationDao reservationDao, ThemeDao themeDao) {
         this.reservationTimeDao = reservationTimeDao;
         this.reservationDao = reservationDao;
+        this.themeDao = themeDao;
     }
 
 
     @Transactional
     public ReservationResponse create(ReservationRequest request) {
         ReservationTime time = reservationTimeDao.findById(request.timeId())
-                .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_TIME_NOT_EXISTS));
+                .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_TIME_NOT_FOUND));
+        Theme theme = themeDao.findById(request.themeId())
+                .orElseThrow(() -> new ReservationException(ReservationErrorCode.THEME_NOT_FOUND));
 
-        Reservation reservation = new Reservation(request.name(), request.date(), time);
+        Reservation reservation = new Reservation(request.name(), request.date(), time, theme);
         Long id = reservationDao.save(reservation);
-        Reservation createdReservation = new Reservation(id, request.name(), request.date(), time);
+        Reservation createdReservation = new Reservation(id, request.name(), request.date(), time, theme);
         return ReservationResponse.from(createdReservation);
     }
 

@@ -15,6 +15,10 @@ public record ReservationRequest(
 
         @NotNull(message = "시간은 필수입니다.")
         @JsonProperty("time_id")
-        Long timeId
+        Long timeId,
+
+        @NotNull(message = "테마는 필수입니다.")
+        @JsonProperty("theme_id")
+        Long themeId
 ) {
 }

@@ -1,9 +1,9 @@
 package roomescape.theme.dao;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import roomescape.theme.domain.Theme;
 
@@ -13,22 +13,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @JdbcTest
+@Import(ThemeDao.class)
 public class ThemeDaoTest {
 
+    @Autowired
     private ThemeDao themeDao;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    @BeforeEach
-    void setUp() {
-        themeDao = new ThemeDao(jdbcTemplate);
-
-        jdbcTemplate.execute("DROP TABLE theme IF EXISTS");
-        jdbcTemplate.execute("CREATE TABLE theme(" +
-                "`id` BIGINT NOT NULL AUTO_INCREMENT, `name` VARCHAR(255) NOT NULL , " +
-                "`description` VARCHAR(255) NOT NULL , `thumbnail` VARCHAR(255) NOT NULL)");
-    }
 
     @Test
     void save_test() {

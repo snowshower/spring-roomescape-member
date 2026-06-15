@@ -5,7 +5,7 @@ import roomescape.exception.ErrorCode;
 
 public enum ThemeErrorCode implements ErrorCode {
     THEME_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "존재하지 않는 테마입니다."),
-    ;
+    THEME_ALREADY_USED(HttpStatus.CONFLICT, "T002", "사용중인 테마는 삭제할 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String errorCode;

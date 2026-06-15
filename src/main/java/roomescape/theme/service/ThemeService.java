@@ -2,6 +2,7 @@ package roomescape.theme.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import roomescape.reservation.dao.ReservationDao;
 import roomescape.theme.dao.ThemeDao;
 import roomescape.theme.domain.Theme;
 import roomescape.theme.dto.ThemeRequest;
@@ -16,9 +17,11 @@ import java.util.List;
 public class ThemeService {
 
     private final ThemeDao themeDao;
+    private final ReservationDao reservationDao;
 
-    public ThemeService(ThemeDao themeDao) {
+    public ThemeService(ThemeDao themeDao, ReservationDao reservationDao) {
         this.themeDao = themeDao;
+        this.reservationDao = reservationDao;
     }
 
     @Transactional
@@ -40,6 +43,9 @@ public class ThemeService {
 
     @Transactional
     public void delete(Long id) {
+        if (reservationDao.existsByThemeId(id)) {
+            throw new ThemeException(ThemeErrorCode.THEME_ALREADY_USED);
+        }
         int deletedId = themeDao.delete(id);
         if (deletedId == 0) {
             throw new ThemeException(ThemeErrorCode.THEME_NOT_FOUND);

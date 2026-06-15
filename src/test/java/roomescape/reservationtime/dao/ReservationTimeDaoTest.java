@@ -1,9 +1,9 @@
 package roomescape.reservationtime.dao;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import roomescape.reservationtime.domain.ReservationTime;
 
@@ -14,25 +14,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @JdbcTest
+@Import(ReservationTimeDao.class)
 public class ReservationTimeDaoTest {
 
+    @Autowired
     private ReservationTimeDao reservationTimeDao;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    @BeforeEach
-    void setUp() {
-        reservationTimeDao = new ReservationTimeDao(jdbcTemplate);
-
-        jdbcTemplate.execute("DROP TABLE reservation IF EXISTS");
-        jdbcTemplate.execute("CREATE TABLE reservation(" +
-                "id BIGINT AUTO_INCREMENT, name VARCHAR(255), `date` DATE, `time_id` BIGINT)");
-
-        jdbcTemplate.execute("DROP TABLE reservation_time IF EXISTS");
-        jdbcTemplate.execute("CREATE TABLE reservation_time(" +
-                "`id` BIGINT AUTO_INCREMENT, `start_at` TIME)");
-    }
 
     @Test
     void save_test() {
