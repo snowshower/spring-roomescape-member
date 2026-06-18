@@ -32,14 +32,18 @@ public class ReservationService {
 
     @Transactional
     public ReservationResponse create(ReservationRequest request) {
-        ReservationTime time = reservationTimeDao.findById(request.timeId())
+        ReservationTime reservationTime = reservationTimeDao.findById(request.timeId())
                 .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_TIME_NOT_FOUND));
         Theme theme = themeDao.findById(request.themeId())
                 .orElseThrow(() -> new ReservationException(ReservationErrorCode.THEME_NOT_FOUND));
 
-        Reservation reservation = new Reservation(request.name(), request.date(), time, theme);
+        Reservation reservation = new Reservation(request.name(), request.date(), reservationTime, theme);
+        if (reservationDao.existsByDateAndTimeIdAndThemeId(request.date(), reservationTime.getId(), theme.getId())) {
+            throw new ReservationException(ReservationErrorCode.ALREADY_RESERVED);
+        }
+
         Long id = reservationDao.save(reservation);
-        Reservation createdReservation = new Reservation(id, request.name(), request.date(), time, theme);
+        Reservation createdReservation = new Reservation(id, request.name(), request.date(), reservationTime, theme);
         return ReservationResponse.from(createdReservation);
     }
 

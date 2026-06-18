@@ -47,16 +47,16 @@ public class ReservationDao {
                        r.date,
                        rt.id as time_id,
                        rt.start_at,
-                       t.id as theme_id,
-                       t.name as theme_name,
-                       t.description,
-                       t.thumbnail
+                       th.id as theme_id,
+                       th.name as theme_name,
+                       th.description,
+                       th.thumbnail
                 FROM reservation as r
                 INNER JOIN reservation_time as rt ON r.time_id=rt.id
-                INNER JOIN theme as t ON r.theme_id=t.id
+                INNER JOIN theme as th ON r.theme_id=th.id
                 """;
         return jdbcTemplate.query(sql, (resultSet, rowNum) -> {
-            ReservationTime time = new ReservationTime(
+            ReservationTime reservationTime = new ReservationTime(
                     resultSet.getLong("time_id"),
                     resultSet.getObject("start_at", LocalTime.class)
             );
@@ -70,7 +70,7 @@ public class ReservationDao {
                     resultSet.getLong("reservation_id"),
                     resultSet.getString("name"),
                     resultSet.getObject("date", LocalDate.class),
-                    time, theme
+                    reservationTime, theme
             );
         });
     }
@@ -89,6 +89,15 @@ public class ReservationDao {
                 SELECT COUNT(*) FROM reservation WHERE theme_id = ?
                 """;
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, themeId);
+
+        return count != null && count > 0;
+    }
+
+    public boolean existsByDateAndTimeIdAndThemeId(LocalDate date, Long timeId, Long themeId) {
+        String sql = """
+                SELECT COUNT(*) FROM reservation WHERE date = ? AND time_id = ? AND theme_id = ?
+                """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, date, timeId, themeId);
 
         return count != null && count > 0;
     }

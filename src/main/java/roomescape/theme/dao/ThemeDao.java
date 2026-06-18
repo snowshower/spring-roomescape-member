@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import roomescape.theme.domain.Theme;
 
 import java.sql.PreparedStatement;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -49,6 +50,29 @@ public class ThemeDao {
                     resultSet.getString("thumbnail")
             );
         });
+    }
+
+    public List<Theme> findPopularThemes(LocalDate startDate, LocalDate endDate) {
+        String sql = """
+                SELECT t.id,
+                       t.name,
+                       t.description,
+                       t.thumbnail
+                FROM theme t
+                JOIN reservation r ON r.theme_id=t.id
+                WHERE r.date >=? AND r.date < ?
+                GROUP BY t.id, t.name, t.description, t.thumbnail
+                ORDER BY COUNT(*) DESC, t.id ASC
+                LIMIT 10;
+                """;
+        return jdbcTemplate.query(sql, (resultSet, rowNum) -> {
+            return new Theme(
+                    resultSet.getLong("id"),
+                    resultSet.getString("name"),
+                    resultSet.getString("description"),
+                    resultSet.getString("thumbnail")
+            );
+        }, startDate, endDate);
     }
 
     public Optional<Theme> findById(Long id) {

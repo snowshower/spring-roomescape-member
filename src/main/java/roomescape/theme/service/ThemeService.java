@@ -10,16 +10,20 @@ import roomescape.theme.dto.ThemeResponse;
 import roomescape.theme.exception.ThemeErrorCode;
 import roomescape.theme.exception.ThemeException;
 
+import java.time.Clock;
+import java.time.LocalDate;
 import java.util.List;
 
 @Transactional(readOnly = true)
 @Service
 public class ThemeService {
 
+    private final Clock clock;
     private final ThemeDao themeDao;
     private final ReservationDao reservationDao;
 
-    public ThemeService(ThemeDao themeDao, ReservationDao reservationDao) {
+    public ThemeService(Clock clock, ThemeDao themeDao, ReservationDao reservationDao) {
+        this.clock = clock;
         this.themeDao = themeDao;
         this.reservationDao = reservationDao;
     }
@@ -34,9 +38,14 @@ public class ThemeService {
     }
 
     public List<ThemeResponse> read() {
-        List<Theme> themes = themeDao.findAll();
+        return themeDao.findAll().stream()
+                .map(ThemeResponse::from)
+                .toList();
+    }
 
-        return themes.stream()
+    public List<ThemeResponse> readPopularThemes() {
+        LocalDate today = LocalDate.now(clock);
+        return themeDao.findPopularThemes(today.minusDays(7), today).stream()
                 .map(ThemeResponse::from)
                 .toList();
     }

@@ -10,6 +10,7 @@ import roomescape.reservationtime.dto.ReservationTimeResponse;
 import roomescape.reservationtime.exception.ReservationTimeErrorCode;
 import roomescape.reservationtime.exception.ReservationTimeException;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Transactional(readOnly = true)
@@ -26,16 +27,23 @@ public class ReservationTimeService {
 
     @Transactional
     public ReservationTimeResponse create(ReservationTimeRequest request) {
-        ReservationTime time = new ReservationTime(request.startAt());
-        Long id = reservationTimeDao.save(time);
-        ReservationTime createdTime = new ReservationTime(id, request.startAt());
+        ReservationTime reservationTime = new ReservationTime(request.startAt());
+        Long id = reservationTimeDao.save(reservationTime);
+        ReservationTime createdTime = new ReservationTime(id, request.startAt(), false);
         return ReservationTimeResponse.from(createdTime);
     }
 
     public List<ReservationTimeResponse> read() {
-        List<ReservationTime> times = reservationTimeDao.findAll();
+        List<ReservationTime> reservationTimes = reservationTimeDao.findAll();
 
-        return times.stream()
+        return reservationTimes.stream()
+                .map(ReservationTimeResponse::from)
+                .toList();
+    }
+
+    public List<ReservationTimeResponse> readAvailableTimes(Long themeId, LocalDate date) {
+        List<ReservationTime> reservationTimes = reservationTimeDao.findAvailableTimes(themeId, date);
+        return reservationTimes.stream()
                 .map(ReservationTimeResponse::from)
                 .toList();
     }

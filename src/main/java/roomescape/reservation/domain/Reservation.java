@@ -9,21 +9,21 @@ public class Reservation {
     private Long id;
     private String name;
     private LocalDate date;
-    private ReservationTime time;
+    private ReservationTime reservationTime;
     private Theme theme;
 
     public Reservation() {
     }
 
-    public Reservation(String name, LocalDate date, ReservationTime time, Theme theme) {
-        this(null, name, date, time, theme);
+    public Reservation(String name, LocalDate date, ReservationTime reservationTime, Theme theme) {
+        this(null, name, date, reservationTime, theme);
     }
 
-    public Reservation(Long id, String name, LocalDate date, ReservationTime time, Theme theme) {
+    public Reservation(Long id, String name, LocalDate date, ReservationTime reservationTime, Theme theme) {
         this.id = id;
         this.name = name;
         this.date = date;
-        this.time = time;
+        this.reservationTime = reservationTime;
         this.theme = theme;
     }
 
@@ -40,7 +40,7 @@ public class Reservation {
     }
 
     public ReservationTime getTime() {
-        return time;
+        return reservationTime;
     }
 
     public Theme getTheme() {

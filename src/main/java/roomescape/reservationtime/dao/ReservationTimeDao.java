@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import roomescape.reservationtime.domain.ReservationTime;
 
 import java.sql.PreparedStatement;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
@@ -22,7 +23,7 @@ public class ReservationTimeDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Long save(ReservationTime time) {
+    public Long save(ReservationTime reservationTime) {
         String sql = """
                 INSERT INTO reservation_time (start_at) VALUES (?)
                 """;
@@ -30,7 +31,7 @@ public class ReservationTimeDao {
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
                     sql, new String[]{"id"});
-            ps.setObject(1, time.getStartAt());
+            ps.setObject(1, reservationTime.getStartAt());
             return ps;
         }, keyHolder);
 
@@ -47,6 +48,27 @@ public class ReservationTimeDao {
                     resultSet.getObject("start_at", LocalTime.class)
             );
         });
+    }
+
+    public List<ReservationTime> findAvailableTimes(Long themeId, LocalDate date) {
+        String sql = """
+                SELECT rt.id,
+                       rt.start_at,
+                       r.id IS NOT NULL AS booked
+                FROM reservation_time rt
+                LEFT JOIN reservation r
+                ON r.time_id=rt.id
+                AND r.theme_id=?
+                AND r.date=?
+                ORDER BY rt.start_at
+                """;
+        return jdbcTemplate.query(sql, (resultSet, rowNum) -> {
+            return new ReservationTime(
+                    resultSet.getLong("id"),
+                    resultSet.getObject("start_at", LocalTime.class),
+                    resultSet.getBoolean("booked")
+            );
+        }, themeId, date);
     }
 
     public Optional<ReservationTime> findById(Long id) {

@@ -10,14 +10,14 @@ public class ReservationResponse {
     private Long id;
     private String name;
     private LocalDate date;
-    private ReservationTimeResponse time;
+    private ReservationTimeResponse reservationTime;
     private ThemeResponse theme;
 
-    public ReservationResponse(Long id, String name, LocalDate date, ReservationTimeResponse time, ThemeResponse theme) {
+    public ReservationResponse(Long id, String name, LocalDate date, ReservationTimeResponse reservationTime, ThemeResponse theme) {
         this.id = id;
         this.name = name;
         this.date = date;
-        this.time = time;
+        this.reservationTime = reservationTime;
         this.theme = theme;
     }
 
@@ -43,7 +43,7 @@ public class ReservationResponse {
     }
 
     public ReservationTimeResponse getTime() {
-        return time;
+        return reservationTime;
     }
 
     public ThemeResponse getTheme() {

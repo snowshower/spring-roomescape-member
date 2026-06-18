@@ -76,18 +76,18 @@ public class ReservationTimeServiceTest {
 
         // when
         reservationTimeService.delete(id);
-        List<ReservationTimeResponse> times = reservationTimeService.read();
+        List<ReservationTimeResponse> reservationTimes = reservationTimeService.read();
 
         // then
-        assertThat(times).isEmpty();
+        assertThat(reservationTimes).isEmpty();
     }
 
     @Test
     void delete_fail_test() {
         // given
-        ReservationTimeRequest timeRequest = new ReservationTimeRequest(LocalTime.of(15, 0));
-        ReservationTimeResponse timeResponse = reservationTimeService.create(timeRequest);
-        Long timeId = timeResponse.getId();
+        ReservationTimeRequest reservationTimeRequest = new ReservationTimeRequest(LocalTime.of(15, 0));
+        ReservationTimeResponse reservationTimeResponse = reservationTimeService.create(reservationTimeRequest);
+        Long timeId = reservationTimeResponse.getId();
         ThemeRequest themeRequest = new ThemeRequest("테마1", "설명1", "썸네일1");
         ThemeResponse themeResponse = themeService.create(themeRequest);
         Long themeId = themeResponse.getId();
