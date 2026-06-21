@@ -9,6 +9,9 @@ import roomescape.reservationtime.dto.ReservationTimeRequest;
 import roomescape.reservationtime.dto.ReservationTimeResponse;
 import roomescape.reservationtime.exception.ReservationTimeErrorCode;
 import roomescape.reservationtime.exception.ReservationTimeException;
+import roomescape.theme.dao.ThemeDao;
+import roomescape.theme.exception.ThemeErrorCode;
+import roomescape.theme.exception.ThemeException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,10 +22,12 @@ public class ReservationTimeService {
 
     private final ReservationTimeDao reservationTimeDao;
     private final ReservationDao reservationDao;
+    private final ThemeDao themeDao;
 
-    public ReservationTimeService(ReservationTimeDao reservationTimeDao, ReservationDao reservationDao) {
+    public ReservationTimeService(ReservationTimeDao reservationTimeDao, ReservationDao reservationDao, ThemeDao themeDao) {
         this.reservationTimeDao = reservationTimeDao;
         this.reservationDao = reservationDao;
+        this.themeDao = themeDao;
     }
 
     @Transactional
@@ -42,8 +47,11 @@ public class ReservationTimeService {
     }
 
     public List<ReservationTimeResponse> readAvailableTimes(Long themeId, LocalDate date) {
-        List<ReservationTime> reservationTimes = reservationTimeDao.findAvailableTimes(themeId, date);
-        return reservationTimes.stream()
+        if (!themeDao.existsById(themeId)) {
+            throw new ThemeException(ThemeErrorCode.THEME_NOT_FOUND);
+        }
+
+        return reservationTimeDao.findAvailableTimes(themeId, date).stream()
                 .map(ReservationTimeResponse::from)
                 .toList();
     }

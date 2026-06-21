@@ -93,6 +93,15 @@ public class ThemeDao {
         }
     }
 
+    public boolean existsById(Long id) {
+        String sql = """
+                SELECT COUNT(*) FROM theme WHERE id = ?
+                """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, id);
+
+        return count != null && count > 0;
+    }
+
     public int delete(Long id) {
         String sql = """
                 DELETE FROM theme WHERE id = ?

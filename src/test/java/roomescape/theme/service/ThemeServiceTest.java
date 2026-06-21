@@ -7,11 +7,12 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.transaction.annotation.Transactional;
-import roomescape.reservation.dto.ReservationRequest;
-import roomescape.reservation.service.ReservationService;
-import roomescape.reservationtime.dto.ReservationTimeRequest;
-import roomescape.reservationtime.dto.ReservationTimeResponse;
-import roomescape.reservationtime.service.ReservationTimeService;
+import roomescape.reservation.dao.ReservationDao;
+import roomescape.reservation.domain.Reservation;
+import roomescape.reservationtime.dao.ReservationTimeDao;
+import roomescape.reservationtime.domain.ReservationTime;
+import roomescape.theme.dao.ThemeDao;
+import roomescape.theme.domain.Theme;
 import roomescape.theme.dto.ThemeRequest;
 import roomescape.theme.dto.ThemeResponse;
 import roomescape.theme.exception.ThemeErrorCode;
@@ -31,6 +32,15 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 @Transactional
 public class ThemeServiceTest {
 
+    @Autowired
+    private ReservationDao reservationDao;
+    @Autowired
+    private ThemeDao themeDao;
+    @Autowired
+    private ReservationTimeDao reservationTimeDao;
+    @Autowired
+    private ThemeService themeService;
+
     @TestConfiguration
     static class TestClockConfig {
         @Primary
@@ -44,13 +54,6 @@ public class ThemeServiceTest {
             );
         }
     }
-
-    @Autowired
-    private ThemeService themeService;
-    @Autowired
-    private ReservationTimeService reservationTimeService;
-    @Autowired
-    private ReservationService reservationService;
 
     @Test
     void create_test() {
@@ -89,26 +92,26 @@ public class ThemeServiceTest {
     @Test
     void readPopularThemes_test() {
         // given
-        ThemeRequest request1 = new ThemeRequest("테마1", "설명1", "썸네일1");
-        ThemeRequest request2 = new ThemeRequest("테마2", "설명2", "썸네일2");
-        ThemeRequest request3 = new ThemeRequest("테마3", "설명3", "썸네일3");
-        ThemeResponse response1 = themeService.create(request1);
-        ThemeResponse response2 = themeService.create(request2);
-        ThemeResponse response3 = themeService.create(request3);
-        Long theme1Id = response1.getId();
-        Long theme2Id = response2.getId();
-        Long theme3Id = response3.getId();
+        Theme theme1 = new Theme("테마1", "설명1", "썸네일1");
+        Theme theme2 = new Theme("테마2", "설명2", "썸네일2");
+        Theme theme3 = new Theme("테마3", "설명3", "썸네일3");
+        Long themeId1=themeDao.save(theme1);
+        Long themeId2=themeDao.save(theme2);
+        Long themeId3=themeDao.save(theme3);
+        Theme savedTheme1 = new Theme(themeId1, "테마1", "설명1", "썸네일1");
+        Theme savedTheme2 = new Theme(themeId2, "테마2", "설명2", "썸네일2");
+        Theme savedTheme3 = new Theme(themeId3, "테마3", "설명3", "썸네일3");
 
-        ReservationTimeRequest reservationTimeRequest = new ReservationTimeRequest(LocalTime.of(15, 0));
-        ReservationTimeResponse reservationTimeResponse = reservationTimeService.create(reservationTimeRequest);
-        Long timeId = reservationTimeResponse.getId();
+        ReservationTime reservationTime = new ReservationTime(LocalTime.of(15, 0));
+        Long reservationTimeId=reservationTimeDao.save(reservationTime);
+        ReservationTime savedReservationTime = new ReservationTime(reservationTimeId, LocalTime.of(15, 0));
 
-        reservationService.create(new ReservationRequest("이름1", LocalDate.of(2026, 6, 12), timeId, theme1Id));
-        reservationService.create(new ReservationRequest("이름2", LocalDate.of(2026, 6, 13), timeId, theme1Id));
-        reservationService.create(new ReservationRequest("이름3", LocalDate.of(2026, 6, 14), timeId, theme1Id));
-        reservationService.create(new ReservationRequest("이름4", LocalDate.of(2026, 6, 13), timeId, theme2Id));
-        reservationService.create(new ReservationRequest("이름5", LocalDate.of(2026, 6, 14), timeId, theme2Id));
-        reservationService.create(new ReservationRequest("이름6", LocalDate.of(2026, 6, 14), timeId, theme3Id));
+        reservationDao.save(new Reservation("이름1", LocalDate.of(2026, 6, 12), savedReservationTime, savedTheme1));
+        reservationDao.save(new Reservation("이름1", LocalDate.of(2026, 6, 13), savedReservationTime, savedTheme1));
+        reservationDao.save(new Reservation("이름1", LocalDate.of(2026, 6, 14), savedReservationTime, savedTheme1));
+        reservationDao.save(new Reservation("이름1", LocalDate.of(2026, 6, 13), savedReservationTime, savedTheme2));
+        reservationDao.save(new Reservation("이름1", LocalDate.of(2026, 6, 14), savedReservationTime, savedTheme2));
+        reservationDao.save(new Reservation("이름1", LocalDate.of(2026, 6, 14), savedReservationTime, savedTheme3));
 
         // when
         List<ThemeResponse> themes = themeService.readPopularThemes();
@@ -140,14 +143,13 @@ public class ThemeServiceTest {
     @Test
     void delete_fail_test() {
         // given
-        ReservationTimeRequest reservationTimeRequest = new ReservationTimeRequest(LocalTime.of(15, 0));
-        ReservationTimeResponse reservationTimeResponse = reservationTimeService.create(reservationTimeRequest);
-        Long timeId = reservationTimeResponse.getId();
-        ThemeRequest themeRequest = new ThemeRequest("테마1", "설명1", "썸네일1");
-        ThemeResponse themeResponse = themeService.create(themeRequest);
-        Long themeId = themeResponse.getId();
-        ReservationRequest request = new ReservationRequest("예약1", LocalDate.of(2026, 6, 16), timeId, themeId);
-        reservationService.create(request);
+        ReservationTime reservationTime = new ReservationTime(LocalTime.of(15, 0));
+        Long reservationTimeId = reservationTimeDao.save(reservationTime);
+        ReservationTime savedReservationTime = new ReservationTime(reservationTimeId, LocalTime.of(15, 0));
+        Theme theme = new Theme("테마1", "설명1", "썸네일1");
+        Long themeId = themeDao.save(theme);
+        Theme savedTheme = new Theme(themeId, "테마1", "설명1", "썸네일1");
+        reservationDao.save(new Reservation("예약1", LocalDate.of(2026, 6, 16), savedReservationTime, savedTheme));
 
         // when && then
         assertThatThrownBy(() -> themeService.delete(999L))
