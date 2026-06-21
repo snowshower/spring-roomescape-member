@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-label="비밀 실험실">
+  <rect width="640" height="360" fill="#dbeafe"/>
+  <rect x="64" y="72" width="512" height="220" rx="18" fill="#ffffff"/>
+  <path d="M132 112h376M132 248h376" stroke="#1d4ed8" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="220" cy="180" r="52" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="10"/>
+  <path d="M404 126v76l48 48" fill="none" stroke="#1d4ed8" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="404" cy="126" r="18" fill="#2563eb"/>
+</svg>

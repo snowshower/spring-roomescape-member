@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-label="사라진 지하철">
+  <rect width="640" height="360" fill="#ecfeff"/>
+  <rect x="96" y="78" width="448" height="214" rx="30" fill="#0f766e"/>
+  <rect x="134" y="118" width="150" height="72" rx="8" fill="#ccfbf1"/>
+  <rect x="356" y="118" width="150" height="72" rx="8" fill="#ccfbf1"/>
+  <path d="M168 248h304" stroke="#f8fafc" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="206" cy="292" r="24" fill="#134e4a"/>
+  <circle cx="434" cy="292" r="24" fill="#134e4a"/>
+</svg>

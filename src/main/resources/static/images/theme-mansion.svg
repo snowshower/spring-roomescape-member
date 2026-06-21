@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-label="고성의 초대장">
+  <rect width="640" height="360" fill="#f1f5f9"/>
+  <path d="M96 284h448V146L320 62 96 146z" fill="#cbd5e1"/>
+  <path d="M152 284V122h84v162M404 284V122h84v162" fill="#64748b"/>
+  <path d="M272 284v-92a48 48 0 0 1 96 0v92" fill="#334155"/>
+  <path d="M96 146h448" stroke="#1e293b" stroke-width="12"/>
+  <circle cx="320" cy="126" r="28" fill="#f8fafc" stroke="#1e293b" stroke-width="8"/>
+</svg>

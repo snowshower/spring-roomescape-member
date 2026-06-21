@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-label="금지된 서재">
+  <rect width="640" height="360" fill="#fef3c7"/>
+  <rect x="86" y="70" width="468" height="232" rx="14" fill="#92400e"/>
+  <rect x="126" y="108" width="70" height="156" fill="#fde68a"/>
+  <rect x="222" y="108" width="70" height="156" fill="#fbbf24"/>
+  <rect x="318" y="108" width="70" height="156" fill="#fde68a"/>
+  <rect x="414" y="108" width="70" height="156" fill="#fbbf24"/>
+  <path d="M126 176h358M126 264h358" stroke="#78350f" stroke-width="10"/>
+</svg>
